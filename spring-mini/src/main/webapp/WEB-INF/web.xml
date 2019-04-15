@@ -9,6 +9,10 @@
   <servlet>
     <servlet-name>springmvc</servlet-name>
     <servlet-class>com.springframework.web.servlet.DispatchServlet</servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>classpath*:/application.properties</param-value>
+    </init-param>
   </servlet>
   <servlet-mapping>
     <servlet-name>springmvc</servlet-name>
