@@ -7,10 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -57,7 +54,7 @@ public class DispatchServlet extends HttpServlet {
         String contextPath = req.getContextPath();
         uri = uri.replaceAll(contextPath, "").replaceAll("/+", "/");
         if (!handlerMapping.containsKey(uri)) {
-            writer.write("404 not fund");
+            outputPage(writer, "404.html");
             return;
         }
         Method method = handlerMapping.get(uri);
@@ -108,6 +105,26 @@ public class DispatchServlet extends HttpServlet {
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
+    }
+
+    private void outputPage(PrintWriter writer, String pagePath) {
+        String path = this.getClass().getClassLoader().getResource("").getPath().replace("/classes/", "");
+        path = path.substring(1) + "/page/" + pagePath;
+        File file = new File(path);
+        StringBuilder content = new StringBuilder();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String line = null;
+            while((line = reader.readLine()) != null) {
+                content.append(line);
+            }
+            reader.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        writer.write(content.toString());
     }
 
     private Object convert(String value, Class type) throws IllegalAccessException {
