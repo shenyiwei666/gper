@@ -128,6 +128,9 @@ public class DispatchServlet extends HttpServlet {
     }
 
     private Object convert(String value, Class type) throws IllegalAccessException {
+        if (value == null) {
+            return null;
+        }
         if (type == String.class) {
             return value;
         } else if (type == Integer.class) {
