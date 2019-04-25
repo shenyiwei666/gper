@@ -170,7 +170,7 @@ public class DispatchServlet extends HttpServlet {
     private void initHandlerMapping() {
         for (Map.Entry<String, Object> entry : ioc.entrySet()) {
             Object bean = entry.getValue();
-            if (!bean.getClass().isAnnotationPresent(RequestMapping.class)) {
+            if (!bean.getClass().isAnnotationPresent(Controller.class) && !bean.getClass().isAnnotationPresent(RequestMapping.class)) {
                 continue;
             }
             RequestMapping classAnnotation = bean.getClass().getAnnotation(RequestMapping.class);
@@ -193,7 +193,7 @@ public class DispatchServlet extends HttpServlet {
     private void dependencyInjection() throws ClassNotFoundException, IllegalAccessException {
         for (Map.Entry<String, Object> entry : ioc.entrySet()) {
             Object bean = entry.getValue();
-            Field[] fields = bean.getClass().getFields();
+            Field[] fields = bean.getClass().getDeclaredFields();
             for (Field field : fields) {
                 if (!field.isAnnotationPresent(Autowired.class)) {
                     continue;
@@ -213,6 +213,7 @@ public class DispatchServlet extends HttpServlet {
                 if (!ioc.containsKey(beanName)) {
                     throw new NullPointerException(bean.getClass().getName() + ":" + field.getName() + ", Dependency injection failed because of not have implementations");
                 }
+                field.setAccessible(true);
                 field.set(bean, ioc.get(beanName));
             }
         }
