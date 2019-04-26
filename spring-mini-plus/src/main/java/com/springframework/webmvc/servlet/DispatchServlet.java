@@ -3,6 +3,7 @@ package com.springframework.webmvc.servlet;
 import com.springframework.context.ApplicationContext;
 import com.springframework.stereotype.Controller;
 import com.springframework.stereotype.RequestMapping;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServlet;
@@ -20,6 +21,7 @@ import java.util.regex.Pattern;
 /**
  * Created by shenyiwei on 2019/4/15.
  */
+@Slf4j
 public class DispatchServlet extends HttpServlet {
     String CONTEXT_CONFIG_LOCATION = "contextConfigLocation";
 
@@ -53,7 +55,9 @@ public class DispatchServlet extends HttpServlet {
             if (result instanceof ModelAndView) {
                 processDispatchResult(req, resp, (ModelAndView) result);
             } else {
-                resp.getWriter().write((String) result);
+                if (result != null) {
+                    resp.getWriter().write(result.toString());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -159,7 +163,7 @@ public class DispatchServlet extends HttpServlet {
     private void initHandlerMappings(ApplicationContext context) {
         String[] beanNames = context.getBeanDefinitionNames();
         for (String beanName : beanNames) {
-            System.out.println("initHandlerMappings----------> getBean--" + beanName);
+            log.info("-----------------------> getBean: " + beanName + " ---------- initHandlerMappings");
             Object bean = context.getBean(beanName);
             Class clazz = bean.getClass();
 

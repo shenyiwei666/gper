@@ -1,5 +1,10 @@
 package com.springframework.context;
 
+import com.springframework.aop.config.AopConfig;
+import com.springframework.aop.framework.AdvisedSupport;
+import com.springframework.aop.framework.AopProxy;
+import com.springframework.aop.framework.CglibAopProxy;
+import com.springframework.aop.framework.JdkDynamicAopProxy;
 import com.springframework.beans.BeanFactory;
 import com.springframework.beans.BeanWrapper;
 import com.springframework.beans.factory.config.BeanDefinition;
@@ -8,6 +13,7 @@ import com.springframework.beans.support.DefaultListableBeanFactory;
 import com.springframework.stereotype.Autowired;
 import com.springframework.stereotype.Controller;
 import com.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -19,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by shenyiwei on 2019/4/23.
  */
+@Slf4j
 public class ApplicationContext extends DefaultListableBeanFactory implements BeanFactory {
 
     private String[] configLocations;
@@ -59,7 +66,7 @@ public class ApplicationContext extends DefaultListableBeanFactory implements Be
         for (Map.Entry<String, BeanDefinition> entry : super.beanDefinitionMap.entrySet()) {
             String beanName = entry.getKey();
             if (!entry.getValue().isLazyInit()) {
-                System.out.println("doAutoWrited-----------------> getBean--" + beanName);
+                log.info("-----------------------> getBean: " + beanName + " ---------- doAutoWrited");
                 getBean(beanName);
             }
         }
@@ -73,7 +80,6 @@ public class ApplicationContext extends DefaultListableBeanFactory implements Be
 
     @Override
     public Object getBean(String beanNname) {
-        System.out.println("getBean() ******************************************** " + beanNname);
         try {
             BeanDefinition beanDefinition = super.beanDefinitionMap.get(beanNname);
             // 初始化
@@ -178,7 +184,15 @@ public class ApplicationContext extends DefaultListableBeanFactory implements Be
         } else {
             try {
                 instance = beanDefinition.getBeanClass().newInstance();
-                System.out.println("instantiateBean-----------------> getBean--" + beanName);
+
+                AdvisedSupport advisedSupport = instanceAopConfig(beanDefinition);
+                advisedSupport.setTargetClass(beanDefinition.getBeanClass());
+                advisedSupport.setTarget(instance);
+                if (advisedSupport.pointCutMatch()) {
+                    instance = createProxy(advisedSupport).getProxy();
+                }
+
+                log.info("-----------------------> instantiateBean: " + beanName);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -187,6 +201,25 @@ public class ApplicationContext extends DefaultListableBeanFactory implements Be
         }
         BeanWrapper beanWrapper = new BeanWrapper(instance);
         return beanWrapper;
+    }
+
+    private AopProxy createProxy(AdvisedSupport advisedSupport) {
+        Class clazz = advisedSupport.getTargetClass();
+        if (clazz.getInterfaces().length > 0) {
+            return new JdkDynamicAopProxy(advisedSupport);
+        }
+        return new CglibAopProxy(advisedSupport);
+    }
+
+    private AdvisedSupport instanceAopConfig(BeanDefinition beanDefinition) {
+        AopConfig config = new AopConfig();
+        config.setPointCut(this.reader.getConfig().getProperty("pointCut"));
+        config.setAspectClass(this.reader.getConfig().getProperty("aspectClass"));
+        config.setAspectBefore(this.reader.getConfig().getProperty("aspectBefore"));
+        config.setAspectAfter(this.reader.getConfig().getProperty("aspectAfter"));
+        config.setAspectAfterThrow(this.reader.getConfig().getProperty("aspectAfterThrow"));
+        config.setAspectAfterThrowingName(this.reader.getConfig().getProperty("aspectAfterThrowingName"));
+        return new AdvisedSupport(config);
     }
 
     public String[] getBeanDefinitionNames() {

@@ -34,9 +34,9 @@ public class UserController {
     @RequestMapping("/error")
     public ModelAndView error() {
         try {
-            String s = "afdsf";
-            Integer num = Integer.parseInt(s);
+            userService.error();
         } catch (Exception e) {
+            e.printStackTrace();
             Map<String, Object> model = new HashMap<>();
             model.put("message", e.getMessage());
             model.put("stackTrace", Arrays.toString(e.getStackTrace()));

@@ -9,4 +9,6 @@ public interface UserService {
 
     String hello(String name);
 
+    void error();
+
 }

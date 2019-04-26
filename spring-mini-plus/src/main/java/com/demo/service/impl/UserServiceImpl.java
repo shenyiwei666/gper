@@ -19,4 +19,9 @@ public class UserServiceImpl implements UserService {
         return "Hello " + name;
     }
 
+    @Override
+    public void error() {
+        String s = null;
+        s.toString();
+    }
 }
