@@ -1,50 +1,55 @@
 package com.demo;
 
 import com.alibaba.fastjson.JSONArray;
-import com.orm.demo.dao.UserDao;
-import com.orm.demo.entity.User;
+import com.orm.demo.dao.OrderDao;
+import com.orm.demo.entity.Order;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by shenyiwei on 2019/4/29.
  */
 @ContextConfiguration(locations = {"classpath:application-context.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
-public class UserTest {
+public class OrderTest {
     @Autowired
-    UserDao userDao;
+    OrderDao orderDao;
 
     @Test
     public void testInsert() {
-        User user = new User();
-        user.setName("Wangwu");
-        user.setSex(1);
-        user.setAge(18);
-        userDao.insert(user);
+        Order order = new Order();
+        order.setUserId(1);
+        order.setOrderNo(UUID.randomUUID().toString().replace("-", ""));
+        order.setAmount(new BigDecimal(100));
+        order.setCrateTime(new Date());
+        orderDao.insert(order);
     }
 
     @Test
     public void testUpdate() {
-        User user = userDao.query(5);
-        user.setSex(1);
-        user.setAge(22);
-        userDao.update(user);
+        Order order = orderDao.query(1);
+        order.setId(1);
+        order.setOrderNo(UUID.randomUUID().toString().replace("-", ""));
+        order.setAmount(new BigDecimal(500));
+        orderDao.update(order);
     }
 
     @Test
     public void testDelete() {
-        userDao.delete(5);
+        orderDao.delete(8);
     }
 
     @Test
     public void testQuery() {
-        List<User> list = userDao.query();
+        List<Order> list = orderDao.query();
         System.out.println(JSONArray.toJSONString(list));
     }
 

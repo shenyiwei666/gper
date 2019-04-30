@@ -33,15 +33,15 @@ public class DefaultBaseDao<T> implements BaseDao<T> {
     @Override
     public Long insert(T entity) {
         String sql = sqlBuilder.buildInsertSql(entity, entitySupput);
-        log.info(sql);
+        log.debug(sql);
         jdbcWriter.execute(sql);
         return null;
     }
 
     @Override
-    public boolean delete(Serializable id) {
-        String sql = sqlBuilder.buildDeleteSql(id, entitySupput);
-        log.info(sql);
+    public boolean delete(Serializable primaryKey) {
+        String sql = sqlBuilder.buildDeleteSql(primaryKey, entitySupput);
+        log.debug(sql);
         jdbcWriter.execute(sql);
         return true;
     }
@@ -49,14 +49,28 @@ public class DefaultBaseDao<T> implements BaseDao<T> {
     @Override
     public boolean update(T entity) {
         String sql = sqlBuilder.buildUpdateSql(entity, entitySupput);
-        log.info(sql);
+        log.debug(sql);
         jdbcWriter.execute(sql);
         return true;
     }
 
     @Override
     public List<T> query() {
-        String sql = "SELECT * FROM " + entitySupput.getTableName();
+        String sql = sqlBuilder.buildQuerySql(entitySupput);
+        log.debug(sql);
+        return jdbcReader.query(sql, createRowMapper());
+    }
+
+    @Override
+    public T query(Serializable primaryKey) {
+        String sql = sqlBuilder.buildQueryForPrimaryKeySql(primaryKey, entitySupput);
+        log.debug(sql);
+        return (T) jdbcReader.queryForObject(sql, createRowMapper());
+    }
+
+    @Override
+    public List<T> queryForSql(String sql) {
+        log.debug(sql);
         return jdbcReader.query(sql, createRowMapper());
     }
 

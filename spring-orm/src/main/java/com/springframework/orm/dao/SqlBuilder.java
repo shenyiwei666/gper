@@ -1,12 +1,16 @@
 package com.springframework.orm.dao;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 
 /**
  * Created by shenyiwei on 2019/4/29.
  */
 public class SqlBuilder<T> {
+    SimpleDateFormat dateTimeFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     /**
      * 构建插入SQL语句
      * @param entity
@@ -32,7 +36,7 @@ public class SqlBuilder<T> {
         }
 
         StringBuffer sql = new StringBuffer();
-        sql.append("INSERT INTO `"+ entitySupput.getTableName() +"` (");
+        sql.append("INSERT INTO `"+ entitySupput.getTableName() +"`(");
         for (int i = 0; i < length; i++) {
             sql.append("`"+ columns[i] +"`,");
             if (i == length - 1) {
@@ -41,7 +45,7 @@ public class SqlBuilder<T> {
         }
         sql.append(")");
 
-        sql.append("VALUES (");
+        sql.append(" VALUES (");
         for (int i = 0; i < length; i++) {
             sql.append(sqlValue(values[i]));
             sql.append(",");
@@ -109,12 +113,46 @@ public class SqlBuilder<T> {
         return sql.toString();
     }
 
+    /**
+     * 构建根据主键查询SQL语句
+     * @param entitySupput
+     * @return
+     */
+    public String buildQuerySql(EntitySupput<T> entitySupput) {
+        StringBuffer sql = new StringBuffer();
+        sql.append("SELECT * FROM `"+ entitySupput.getTableName() + "`;");
+        return sql.toString();
+    }
+
+    /**
+     * 构建根据主键查询SQL语句
+     * @param primaryKey
+     * @param entitySupput
+     * @return
+     */
+    public String buildQueryForPrimaryKeySql(Serializable primaryKey, EntitySupput<T> entitySupput) {
+        StringBuffer sql = new StringBuffer();
+        sql.append("SELECT * FROM `"+ entitySupput.getTableName() + "`");
+        sql.append(" WHERE "+ entitySupput.getPrimaryKey() +"=");
+        sql.append(sqlValue(primaryKey));
+        sql.append(";");
+        return sql.toString();
+    }
+
     private String sqlValue(Object value) {
         if (value == null) {
             return null;
         }
+
         StringBuffer sb = new StringBuffer();
-        if (value.getClass() == String.class) {
+        Class type = value.getClass();
+
+        if (type == java.util.Date.class || type == java.sql.Date.class || type == Timestamp.class) {
+            value = dateTimeFmt.format(value);
+        }
+
+        type = value.getClass();
+        if (type == String.class) {
             sb.append("'");
         }
         sb.append(value);
