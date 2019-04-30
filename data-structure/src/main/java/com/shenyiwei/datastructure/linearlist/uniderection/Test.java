@@ -1,4 +1,4 @@
-package com.datastructure.linearlist.uniderection;
+package com.shenyiwei.datastructure.linearlist.uniderection;
 
 /**
  * Created by shenyiwei on 2019/4/25.

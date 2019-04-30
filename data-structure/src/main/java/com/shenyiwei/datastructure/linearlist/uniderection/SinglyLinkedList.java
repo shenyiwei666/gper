@@ -1,4 +1,4 @@
-package com.datastructure.linearlist.uniderection;
+package com.shenyiwei.datastructure.linearlist.uniderection;
 
 import java.util.concurrent.atomic.AtomicLong;
 
