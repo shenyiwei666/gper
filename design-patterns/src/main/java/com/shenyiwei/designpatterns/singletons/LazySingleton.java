@@ -27,6 +27,8 @@ public class LazySingleton implements Serializable {
         if (instance == null) {
             synchronized (LazySingleton.class) {
                 if (instance == null) {
+                    // 不在这里给instance赋值，而将赋值放入构造函数中，
+                    // 是因为如果先通过反射创建实例，再通过本方法创建实例时就会出现创建了两个实例
                     new LazySingleton();
                 }
             }

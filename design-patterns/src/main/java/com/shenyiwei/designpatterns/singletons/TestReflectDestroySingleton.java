@@ -1,7 +1,5 @@
 package com.shenyiwei.designpatterns.singletons;
 
-import com.shenyiwei.designpatterns.singletons.EnumSingleton;
-
 import java.lang.reflect.Constructor;
 
 /**
@@ -18,10 +16,10 @@ public class TestReflectDestroySingleton {
         // EnumSingleton        ×
 
         try {
-            Object o1 = EnumSingleton.getInstance();
+            Object o1 = LazySingleton.getInstance();
             System.out.println("--------------------------------------------");
 
-            Class clazz = EnumSingleton.class;
+            Class clazz = LazySingleton.class;
             Constructor cons = clazz.getDeclaredConstructor(null);
             cons.setAccessible(true);
             Object o2 = cons.newInstance();
