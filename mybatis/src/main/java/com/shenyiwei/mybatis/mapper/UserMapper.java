@@ -1,6 +1,7 @@
 package com.shenyiwei.mybatis.mapper;
 
 import com.shenyiwei.mybatis.entity.User;
+import org.apache.ibatis.session.RowBounds;
 
 import java.util.List;
 
@@ -10,6 +11,8 @@ import java.util.List;
 public interface UserMapper {
 
     List<User> selectList();
+
+    List<User> selectList(RowBounds rowBounds);
 
     User selectOne(Integer id);
 

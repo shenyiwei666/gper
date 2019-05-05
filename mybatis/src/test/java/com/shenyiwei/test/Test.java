@@ -1,4 +1,4 @@
-package com.shenyiwei.mybatis;
+package com.shenyiwei.test;
 
 import com.alibaba.fastjson.JSONObject;
 import com.shenyiwei.mybatis.entity.User;
@@ -30,10 +30,11 @@ public class Test {
             user.setAge(20);
             user.setName("Zhangsan");
             mapper.update(user);
+
             sqlSession.commit();
 
-//            user = mapper.selectOne(1);
-//            System.out.println("\n\n" + JSONObject.toJSONString(user));
+            user = mapper.selectOne(1);
+            System.out.println("\n\n" + JSONObject.toJSONString(user));
 
         } catch (IOException e) {
             e.printStackTrace();
