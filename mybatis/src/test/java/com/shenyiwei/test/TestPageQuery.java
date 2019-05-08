@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.shenyiwei.mybatis.entity.User;
 import com.shenyiwei.mybatis.mapper.UserMapper;
 import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
@@ -27,8 +26,13 @@ public class TestPageQuery {
             UserMapper mapper = sqlSession.getMapper(UserMapper.class);
 
 //            User user = mapper.selectOne(1);
-            List<User> list = mapper.selectList(new RowBounds(4, 4));
+//            List<User> list = mapper.selectList(new RowBounds(4, 4));
+            List<User> list = mapper.selectList();
             System.out.println("\n\n" + JSONObject.toJSONString(list));
+
+            User user = mapper.selectOne(1);
+            System.out.println("\n\n" + JSONObject.toJSONString(user));
+
 
         } catch (Exception e) {
             e.printStackTrace();

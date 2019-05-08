@@ -15,10 +15,10 @@
         SELECT * FROM `user`
     </select>
 
-    <select id="selectOne" resultType="com.shenyiwei.mybatis.entity.User">
-        SELECT * FROM `user`
-        WHERE id=#{id}
-    </select>
+    <!--<select id="selectOne" resultType="com.shenyiwei.mybatis.entity.User">-->
+        <!--SELECT * FROM `user`-->
+        <!--WHERE id=#{id}-->
+    <!--</select>-->
 
     <update id="update">
         UPDATE `user` set `name`=#{name},sex=#{sex},age=#{age}
