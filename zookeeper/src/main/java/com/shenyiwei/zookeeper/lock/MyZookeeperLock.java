@@ -12,16 +12,16 @@ import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * 分布式锁
+ * zookeeper分布式锁
  * Created by shenyiwei on 2019-5-18 018.
  */
-public class DistributeLock  {
+public class MyZookeeperLock {
     static String connectionUrl = "192.168.216.200:2181";
     static ZooKeeper zooKeeper;
 
-    String lockName;
-    String own;
-    String prev;
+    String lockName;    // 锁名称
+    String own;     // 当前节点
+    String prev;    // 上一个节点
 
     static {
         zeekeeperConnection();
@@ -47,11 +47,18 @@ public class DistributeLock  {
         }
     }
 
-    public DistributeLock(String lockName) throws IOException, KeeperException, InterruptedException {
+    public MyZookeeperLock(String lockName) throws IOException, KeeperException, InterruptedException {
         this.lockName = lockName;
         createPersistentNode(lockName);
     }
 
+    /**
+     * 创建持久节点
+     * @param node
+     * @throws IOException
+     * @throws KeeperException
+     * @throws InterruptedException
+     */
     private void createPersistentNode(String node) throws IOException, KeeperException, InterruptedException {
         Stat stat = zooKeeper.exists(node, false);
         if (stat == null) {
@@ -59,6 +66,7 @@ public class DistributeLock  {
                 if (stat == null) {
                     String[] nameArray = node.split("/");
                     StringBuffer sb = new StringBuffer();
+                    // 多级目录，循环创建
                     for (String name : nameArray) {
                         if ("".equals(name)) {
                             continue;
@@ -75,17 +83,22 @@ public class DistributeLock  {
     }
 
     public void lock() throws KeeperException, InterruptedException {
+        // 抢到了锁直接返回，不阻塞
         if (tryLock()) {
 //            System.out.println(Thread.currentThread().getName() + "  " + own + "  获得锁1");
             return;
         }
         CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        // 监听上一个节点
         Stat stat = zooKeeper.exists(prev, new Watcher() {
             @Override
             public void process(WatchedEvent event) {
                 countDownLatch.countDown();
             }
         });
+
+        // 上一个节点还没有释放锁，则阻塞等待锁释放
         if (stat != null) {
 //            System.out.println(Thread.currentThread().getName() + "  " + own + "  等待 " + prev + " 释放锁");
             countDownLatch.await();
@@ -93,21 +106,38 @@ public class DistributeLock  {
         }
     }
 
+    /**
+     * 尝试获取锁
+     * @return
+     * @throws KeeperException
+     * @throws InterruptedException
+     */
     public boolean tryLock() throws KeeperException, InterruptedException {
+        // 在锁的节点下面，创建自己对应的临时有序节点
         own = zooKeeper.create(lockName + "/", "0".getBytes(),
                 ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
 
-        SortedSet childrenSet = getChildren(lockName, false);
+        // 获取锁的所有子节点
+        SortedSet childrenSet = getChildren(lockName);
+
+        // 如果第一个节点是自己，表示拿到了锁
         if (childrenSet.first().equals(own)) {
             return true;
         }
 
+        // 获取集合中自己之前的所有节点
         SortedSet<String> headSet = childrenSet.headSet(own);
+        // 最后一个也就是自己的前面的那个节点
         prev = headSet.last();
         return false;
     }
 
-    private SortedSet<String> getChildren(String path, boolean watch) {
+    /**
+     * 获取所有子节点，并按升序排序返回
+     * @param path
+     * @return
+     */
+    private SortedSet<String> getChildren(String path) {
         try {
             List<String> childrenList = zooKeeper.getChildren(lockName, false);
             SortedSet childrenSet = new TreeSet();
@@ -123,6 +153,11 @@ public class DistributeLock  {
         return null;
     }
 
+    /**
+     * 释放锁
+     * @throws KeeperException
+     * @throws InterruptedException
+     */
     public void unlock() throws KeeperException, InterruptedException {
 //        System.out.println(Thread.currentThread().getName() + "  " + own + "  释放锁");
         zooKeeper.delete(own, -1);

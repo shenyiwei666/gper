@@ -5,7 +5,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * Created by shenyiwei on 2019-5-19 019.
  */
-public class TestDistributeLock {
+public class TestMyZookeeperLock {
 
     public static void main(String[] args) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -15,7 +15,7 @@ public class TestDistributeLock {
                 @Override
                 public void run() {
                     try {
-                        DistributeLock lock = new DistributeLock("/locks/lock1");
+                        MyZookeeperLock lock = new MyZookeeperLock("/locks/lock1");
                         countDownLatch.await();
 
                         lock.lock();
