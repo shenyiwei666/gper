@@ -2,6 +2,7 @@ package com.shenyiwei.consumer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.shenyiwei.dubbo.provider.api.service.UserService;
+import com.shenyiwei.dubbo.provider.api.vo.User;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
@@ -13,14 +14,14 @@ public class ConsumerApp {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("dubbo-consumer.xml");
         context.start();
         UserService userService = (UserService) context.getBean("userService");
-        UserService userServiceWrite = (UserService) context.getBean("userServiceWrite");
+//        UserService userServiceWrite = (UserService) context.getBean("userServiceWrite");
 
-//        User user = userService.getUser(5);
-//        System.out.println(JSONObject.toJSONString(user));
+        User user = userService.getUser(2);
+        System.out.println(JSONObject.toJSONString(user));
 
-        Boolean isSuccess = userServiceWrite.addUser(6);
+//        Boolean isSuccess = userServiceWrite.addUser(6);
 //        Boolean isSuccess = userService.addUser(6);
-        System.out.println(JSONObject.toJSONString(isSuccess));
+//        System.out.println(JSONObject.toJSONString(isSuccess));
 
     }
 

@@ -1,5 +1,7 @@
 package com.shenyiwei.dubbo.provider;
 
+import com.alibaba.dubbo.common.extension.ExtensionLoader;
+import com.alibaba.dubbo.rpc.Protocol;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.IOException;
@@ -16,6 +18,11 @@ public class ProviderApp {
         context.start();
         System.out.println(">>>>>>>>>>>>>> start success");
         System.in.read();
+    }
+
+    private void test() {
+        Protocol protocol = ExtensionLoader.getExtensionLoader(Protocol.class)
+                .getAdaptiveExtension();
     }
 
 }

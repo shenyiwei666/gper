@@ -10,13 +10,14 @@
     <dubbo:application name="consumer-of-helloworld-app"  />
 
     <!-- 使用multicast广播注册中心暴露发现服务地址 -->
-    <dubbo:registry address="zookeeper://192.168.216.200:2181" />
+    <!-- <dubbo:registry address="zookeeper://192.168.216.200:2181" /> -->
+    <dubbo:registry address="zookeeper://localhost:2181" />
 
     <!-- failover调用失败后默认会再重试两次 -->
     <dubbo:reference id="userService" interface="com.shenyiwei.dubbo.provider.api.service.UserService"
-                     cluster="failover" timeout="1000" />
+                     cluster="failover" retries="1" timeout="10000"   />
 
     <!-- 读写分离，写的请求超时后不重试 -->
-    <dubbo:reference id="userServiceWrite" interface="com.shenyiwei.dubbo.provider.api.service.UserService"
-                     cluster="failfast" timeout="1000" />
+    <!--<dubbo:reference id="userServiceWrite" interface="com.shenyiwei.dubbo.provider.api.service.UserService"-->
+                     <!--cluster="failfast" timeout="1000" />-->
 </beans>
